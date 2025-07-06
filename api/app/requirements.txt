@@ -1,0 +1,6 @@
+robotexclusionrulesparser
+bs4
+requests
+playwright
+lxml
+fastapi

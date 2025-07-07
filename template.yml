@@ -114,7 +114,7 @@ Resources:
   ScrapperALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: !Sub dvst-knwldge-scrapper-alb-${AWS::Region}
+      Name: !Sub scrapper-alb-${AWS::Region}
       Scheme: internet-facing
       Subnets: !Ref PublicSubnets
       SecurityGroups:

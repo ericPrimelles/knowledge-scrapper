@@ -41,7 +41,7 @@ Resources:
   ScrapperTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub dvst-knwldge-scrapper-task-role-${AWS:Region}
+      RoleName: !Sub dvst-knwldge-scrapper-task-role-${AWS::Region}
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -76,7 +76,7 @@ Resources:
             Options:
               awslogs-group: /ecs/nginx
               awslogs-region: 
-                Fn::Ref: AWS:Region
+                Fn::Ref: AWS::Region
               aws-stream-prefix: nginx
           DependsOn:
             - ContainerName: scrapper
@@ -110,7 +110,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow HTTP traffic from ALB to service
-      VpcId: !Ref DefaultVPC
+      VpcId: !Ref DefaultVpc
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -120,7 +120,7 @@ Resources:
   ScrapperALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: !Sub dvst-knwldge-scrapper-alb-${AWS:Region}
+      Name: !Sub dvst-knwldge-scrapper-alb-${AWS::Region}
       Scheme: internet-facing
       Subnets: !Ref PublicSubnets
       SecurityGroups:
@@ -129,11 +129,11 @@ Resources:
   ScrapperALBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub dvst-knwldge-scrapper-alb-target-group-${AWS:Region}
+      Name: !Sub dvst-knwldge-scrapper-alb-target-group-${AWS::Region}
       Port: 80
       Protocol: HTTTP
       TargetType: ip
-      VPCId: !Ref DefaultVPC
+      VPCId: !Ref DefaultVpc
       HealthCheckPath: /health
       HealthCheckIntervalSeconds: 15
       HealthCheckTimeoutSeconds: 10
@@ -153,7 +153,7 @@ Resources:
   ScrapperECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: dvst-knwldge-scrapper-ecs-cluster-${AWS:Region}
+      ClusterName: dvst-knwldge-scrapper-ecs-cluster-${AWS::Region}
       ClusterSettings:
         - Name: containerInsights
           Value: enabled

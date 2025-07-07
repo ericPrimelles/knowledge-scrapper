@@ -62,7 +62,7 @@ Resources:
       Memory: !Ref ContainerMemory
       NetworkMode: awsvpc
       ExecutionRoleArn: a
-      ContianerDefinitions:
+      ContainerDefinitions:
         - Name: nginx
           Image: !Ref NginxImageUrl
           PortMappings:

@@ -55,6 +55,7 @@ jobs:
                 docker tag nginx-server:latest $NGINX_ECR_URI:latest
                 docker push $NGINX_ECR_URI:latest
                 cd ..
+                ls
                 cd app
                 docker build -t scrapper .
                 aws ecr get-login-password --region us-east-1 \

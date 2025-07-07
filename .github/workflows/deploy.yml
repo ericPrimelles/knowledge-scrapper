@@ -38,7 +38,7 @@ jobs:
 
                 ######## Retrieving ECR URIs #############
                 export APP_ECR_URI=$(aws cloudformation describe-stacks \
-                    --stack-name dvst-knwledge-ecr \
+                    --stack-name dNginxImageUrl=$NGINX_ECR_URIvst-knwledge-ecr \
                     --query "Stacks[0].Outputs[?OutputKey=='AiDvstKnwlgeECRepUri'].OutputValue" \
                     --output text)
                 export NGINX_ECR_URI=$(aws cloudformation describe-stacks \
@@ -85,4 +85,4 @@ jobs:
                   --stack-name dvst-knwledge-scrapper \
                   --template-file template.yml \
                   --capabilities CAPABILITY_NAMED_IAM \
-                  --parameter-overrides Stage=${{env.STAGE}} DefaultVpc=$DEFAULT_VPC PublicSubnets=$PUBLIC_SUBNETS  
+                  --parameter-overrides Stage=${{env.STAGE}} DefaultVpc=$DEFAULT_VPC PublicSubnets=$PUBLIC_SUBNETS ImageUrl=$APP_ECR_URI  NginxImageUrl=$NGINX_ECR_URI

@@ -1,0 +1,84 @@
+name: Deploy drivestate-AI-Agent
+
+on:
+    push:
+        branches:
+            - main
+            - ai-agent
+jobs:
+    deploy:
+        name: Deploy Scrapper APP
+
+        runs-on: ubuntu-latest
+
+        env:
+            AWS_REGION: us-east-1
+            STAGE: dev
+            SERVERLESS_ACCESS_KEY: ${{secrets.SERVERLESS_ACCESS_KEY}}
+        
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v3
+              with:
+                python-version: "3.13"
+            - name: Set up NodeJs
+              uses: actions/setup-node@v4
+             
+            - name: Serverless Deploy
+              run: |
+                
+                # export STAGE=dev
+                #Export KNOWLEDGE AWS credentials
+                export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY }}
+                export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                export AWS_REGION=${{ env.AWS_REGION }}
+
+                ######## Retrieving ECR URIs #############
+                export APP_ECR_URI=$(aws cloudformation describe-stacks \
+                    --stack-name dvst-knwledge-ecr \
+                    --query "Stacks[0].Outputs[?OutputKey=='AiDvstKnwlgeECRepUri'].OutputValue" \
+                    --output text)
+                export NGINX_ECR_URI=$(aws cloudformation describe-stacks \
+                    --stack-name dvst-knwledge-ecr \
+                    --query "Stacks[0].Outputs[?OutputKey=='AiDvstNginxECRepUri'].OutputValue" \
+                    --output text)
+                ####################################################
+                ########Building&Deploying docker images#########
+                cd nginx
+                docker build -t nginx-server .
+                aws ecr get-login-password --region us-east-1 \
+                  | docker login --username AWS --password-stdin $NGINX_ECR_URI
+
+                docker tag scrapper-lambda:latest $NGINX_ECR_URI:latest
+                docker push $NGINX_ECR_URI:latest
+                cd ..
+                cd app
+                docker build -t scrapper .
+                aws ecr get-login-password --region us-east-1 \
+                  | docker login --username AWS --password-stdin $APP_ECR_URI
+
+                docker tag scrapper-lambda:latest $APP_ECR_URI:latest
+                docker push $APP_ECR_URI:latest
+                cd ..
+                ##############END################################
+                
+                ################Retreiving VPC Config###########
+                export DEFAULT_VPC=$(aws ec2 describe-vpcs \
+                                    --filters Name=isDefault,Values=true \
+                                    --query 'Vpcs[*].VpcId' \
+                                    --output text)
+                export PUBLIC_SUBNETS= $(aws ec2 describe-subnets \
+                                            --filters vpc-id=$DEFAULT_VPC \
+                                            --query 'Subnets[*].SubnetId',
+                                            --output text)
+                ###################################################
+
+                ############### Deploy Stack #####################
+                aws cloudformation deploy \
+                  --stack-name dvst-knwledge-scrapper \
+                  --template-file template.yml \
+                  --capabilities CAPABILITY_NAMED_IAM \
+                  --parameter-overrides Stage=${{env.STAGE}} DefaultVpc=$DEFAULT_VPC PublicSubnets=$PUBLIC_SUBNETS  

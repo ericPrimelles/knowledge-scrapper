@@ -2,17 +2,179 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Generic AWS CloudFormation Template
 
 Parameters:
-  EnvironmentName:
+  Stage:
     Type: String
     Default: dev
     Description: Environment name (e.g., dev, test, prod)
+  
+  ImageUrl:
+    Type: String
+    Description: Image url for the app
+  
+  NginxImageUrl:
+    Type: String
+    Description: Image url for the nginx container
+  
+  ContainerPort:
+    Type: Number
+    Default: 80
+
+  ContainerCpu:
+    Type: Number
+    Default: 1024
+    Description: How much CPU for the container
+  
+  ContainerMemory:
+    Type: Number
+    Default: 2048
+    Description: Memory for the container
+  
+  DefaultVpc:
+    Type: String
+    Description: Default VPC Id
+  
+  PublicSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Default public subnets
 
 Resources:
-  SampleS3Bucket:
-    Type: AWS::S3::Bucket
+  ScrapperTaskExecutionRole:
+    Type: AWS::IAM::Role
     Properties:
-      BucketName: !Sub '${EnvironmentName}-sample-bucket'
+      RoleName: !Sub dvst-knwldge-scrapper-task-role-${AWS:Region}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
+  ScrapperTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: nginx-scrapper-task
+      RequiredCompatibilities:
+        - FARGATE
+      Cpu: 
+        Fn::Ref: ContainerCpu
+      Memory:
+        Fn::Ref: ContianerMemory
+      NetworkMode: awsvpc
+      ExecutionRoleArn: a
+      ContianerDefinitions:
+        - Name: nginx
+          Image: 
+            Fn::Ref: NginxImageUrl
+          PortMappings:
+            - ContainerPort: 80
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/nginx
+              awslogs-region: 
+                Fn::Ref: AWS:Region
+              aws-stream-prefix: nginx
+          DependsOn:
+            - ContainerName: scrapper
+              Condition: Start
+        - Name: scrapper
+          Image:
+            Fn::Ref: ImageUrl
+          PortMappings: 
+            - ContainerPort: 3000
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/scrapper
+              awslogs-region:
+                Fn::Ref: AWS::Region
+              awslogs-stream-prefix: scrapper
+
+  ## ALB Definition
+  ALBSecurityGroup:
+    Type: AWS:EC2:SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP traffic to ALB
+      VpcId: !Ref DefaultVpc
+      SecurityGroupIngess:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  ServiceSecurityGroup:
+    Type: AWS::EC2:SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP traffic from ALB to service
+      VpcId: !Ref DefaultVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+
+  ScrapperALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub dvst-knwldge-scrapper-alb-${AWS:Region}
+      Scheme: internet-facing
+      Subnets: !Ref PublicSubnets
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+    
+  ScrapperALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub dvst-knwldge-scrapper-alb-target-group-${AWS:Region}
+      Port: 80
+      Protocol: HTTTP
+      TargetType: ip
+      VPCId: !Ref DefaultVPC
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 15
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+    
+  ScrapperALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ScrapperALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ScrapperALBTargetGroup
+  ### ECS
+  ScrapperECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: dvst-knwldge-scrapper-ecs-cluster-${AWS:Region}
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+  ScrapperECSService:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - ScrapperALBListener
+    Properties:
+      Cluster: !Ref ScrapperECSCluster
+      LaunchType: FARGATE
+      DesiredCount: 1
+      TaskDefinition: !Ref ScrapperTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ServiceSecurityGroup
+      LoadBalancers:
+        - ContainerName: ngnix
+          ContainerPort: 80
+          TargetGroupArn: !Ref ScrapperALBTargetGroup
 Outputs:
   BucketName:
     Description: Name of the created S3 bucket

@@ -56,7 +56,7 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: nginx-scrapper-task
-      RequiredCompatibilities:
+      RequiresCompatibilities:
         - FARGATE
       Cpu: !Ref ContainerCpu
       Memory: !Ref ContainerMemory

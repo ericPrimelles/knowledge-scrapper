@@ -123,7 +123,7 @@ Resources:
   ScrapperALBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub dvst-knwldge-scrapper-alb-target-group-${AWS::Region}
+      Name: !Sub scrapper-alb-tgt-grpus-${AWS::Region}
       Port: 80
       Protocol: HTTP
       TargetType: ip

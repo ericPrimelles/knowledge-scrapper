@@ -127,7 +127,7 @@ Resources:
       Port: 80
       Protocol: HTTTP
       TargetType: ip
-      VPCId: !Ref DefaultVpc
+      VpcId: !Ref DefaultVpc
       HealthCheckPath: /health
       HealthCheckIntervalSeconds: 15
       HealthCheckTimeoutSeconds: 10

@@ -97,7 +97,7 @@ Resources:
 
   ## ALB Definition
   ALBSecurityGroup:
-    Type: AWS:EC2:SecurityGroup
+    Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow HTTP traffic to ALB
       VpcId: !Ref DefaultVpc
@@ -107,7 +107,7 @@ Resources:
           ToPort: 80
           CidrIp: 0.0.0.0/0
   ServiceSecurityGroup:
-    Type: AWS::EC2:SecurityGroup
+    Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow HTTP traffic from ALB to service
       VpcId: !Ref DefaultVPC

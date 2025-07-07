@@ -58,16 +58,13 @@ Resources:
       Family: nginx-scrapper-task
       RequiredCompatibilities:
         - FARGATE
-      Cpu: 
-        Fn::Ref: ContainerCpu
-      Memory:
-        Fn::Ref: ContianerMemory
+      Cpu: !Ref ContainerCpu
+      Memory: !Ref: ContianerMemory
       NetworkMode: awsvpc
       ExecutionRoleArn: a
       ContianerDefinitions:
         - Name: nginx
-          Image: 
-            Fn::Ref: NginxImageUrl
+          Image: !Ref: NginxImageUrl
           PortMappings:
             - ContainerPort: 80
           Essential: true
@@ -75,15 +72,13 @@ Resources:
             LogDriver: awslogs
             Options:
               awslogs-group: /ecs/nginx
-              awslogs-region: 
-                Fn::Ref: AWS::Region
+              awslogs-region: !Ref: AWS::Region
               aws-stream-prefix: nginx
           DependsOn:
             - ContainerName: scrapper
               Condition: Start
         - Name: scrapper
-          Image:
-            Fn::Ref: ImageUrl
+          Image: !Ref: ImageUrl
           PortMappings: 
             - ContainerPort: 3000
           Essential: true
@@ -91,8 +86,7 @@ Resources:
             LogDriver: awslogs
             Options:
               awslogs-group: /ecs/scrapper
-              awslogs-region:
-                Fn::Ref: AWS::Region
+              awslogs-region: Ref: AWS::Region
               awslogs-stream-prefix: scrapper
 
   ## ALB Definition

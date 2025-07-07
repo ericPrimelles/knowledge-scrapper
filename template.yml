@@ -125,7 +125,7 @@ Resources:
     Properties:
       Name: !Sub dvst-knwldge-scrapper-alb-target-group-${AWS::Region}
       Port: 80
-      Protocol: HTTTP
+      Protocol: HTTP
       TargetType: ip
       VpcId: !Ref DefaultVpc
       HealthCheckPath: /health

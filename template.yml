@@ -59,7 +59,7 @@ Resources:
       RequiredCompatibilities:
         - FARGATE
       Cpu: !Ref ContainerCpu
-      Memory: !Ref ContianerMemory
+      Memory: !Ref ContainerMemory
       NetworkMode: awsvpc
       ExecutionRoleArn: a
       ContianerDefinitions:

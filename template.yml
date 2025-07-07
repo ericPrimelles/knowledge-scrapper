@@ -170,6 +170,4 @@ Resources:
           ContainerPort: 80
           TargetGroupArn: !Ref ScrapperALBTargetGroup
 Outputs:
-  BucketName:
-    Description: Name of the created S3 bucket
-    Value: !Ref SampleS3Bucket
+  

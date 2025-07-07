@@ -73,7 +73,7 @@ Resources:
             Options:
               awslogs-group: /ecs/nginx
               awslogs-region: !Ref AWS::Region
-              aws-stream-prefix: nginx
+              awslogs-stream-prefix: nginx
           DependsOn:
             - ContainerName: scrapper
               Condition: Start

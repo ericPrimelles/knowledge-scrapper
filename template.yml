@@ -169,5 +169,5 @@ Resources:
         - ContainerName: ngnix
           ContainerPort: 80
           TargetGroupArn: !Ref ScrapperALBTargetGroup
-Outputs:
+# Outputs:
   

@@ -69,12 +69,14 @@ jobs:
                 ################Retreiving VPC Config###########
                 export DEFAULT_VPC=$(aws ec2 describe-vpcs \
                                     --filters Name=isDefault,Values=true \
-                                    --query 'Vpcs[*].VpcId' \
+                                    --query 'Vpcs[0].VpcId' \
                                     --output text)
-                export PUBLIC_SUBNETS= $(aws ec2 describe-subnets \
-                                            --filters vpc-id=$DEFAULT_VPC \
-                                            --query 'Subnets[*].SubnetId' \
-                                            --output text)
+
+                export PUBLIC_SUBNETS=$(aws ec2 describe-subnets \
+                                        --filters Name=vpc-id,Values=$DEFAULT_VPC \
+                                        --query 'Subnets[*].SubnetId' \
+                                        --output text)
+
                 ###################################################
 
                 ############### Deploy Stack #####################

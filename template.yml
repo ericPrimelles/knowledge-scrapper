@@ -76,7 +76,7 @@ Resources:
               awslogs-stream-prefix: nginx
           DependsOn:
             - ContainerName: scrapper
-              Condition: Start
+              Condition: START
         - Name: scrapper
           Image: !Ref ImageUrl
           PortMappings: 

@@ -73,7 +73,7 @@ jobs:
                                     --output text)
                 export PUBLIC_SUBNETS= $(aws ec2 describe-subnets \
                                             --filters vpc-id=$DEFAULT_VPC \
-                                            --query 'Subnets[*].SubnetId',
+                                            --query 'Subnets[*].SubnetId' \
                                             --output text)
                 ###################################################
 

@@ -38,7 +38,7 @@ jobs:
 
                 ######## Retrieving ECR URIs #############
                 export APP_ECR_URI=$(aws cloudformation describe-stacks \
-                    --stack-name dNginxImageUrl=$NGINX_ECR_URIvst-knwledge-ecr \
+                    --stack-name dvst-knwledge-ecr \
                     --query "Stacks[0].Outputs[?OutputKey=='AiDvstKnwlgeECRepUri'].OutputValue" \
                     --output text)
                 export NGINX_ECR_URI=$(aws cloudformation describe-stacks \

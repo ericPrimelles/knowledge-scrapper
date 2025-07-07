@@ -147,7 +147,7 @@ Resources:
   ScrapperECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: dvst-knwldge-scrapper-ecs-cluster-${AWS::Region}
+      ClusterName: !Sub dvst-knwldge-scrapper-ecs-cluster-${AWS::Region}
       ClusterSettings:
         - Name: containerInsights
           Value: enabled

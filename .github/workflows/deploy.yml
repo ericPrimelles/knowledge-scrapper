@@ -52,7 +52,7 @@ jobs:
                 aws ecr get-login-password --region us-east-1 \
                   | docker login --username AWS --password-stdin $NGINX_ECR_URI
 
-                docker tag scrapper-lambda:latest $NGINX_ECR_URI:latest
+                docker tag nginx-server:latest $NGINX_ECR_URI:latest
                 docker push $NGINX_ECR_URI:latest
                 cd ..
                 cd app
@@ -60,7 +60,7 @@ jobs:
                 aws ecr get-login-password --region us-east-1 \
                   | docker login --username AWS --password-stdin $APP_ECR_URI
 
-                docker tag scrapper-lambda:latest $APP_ECR_URI:latest
+                docker tag scrapper:latest $APP_ECR_URI:latest
                 docker push $APP_ECR_URI:latest
                 cd ..
                 ##############END################################

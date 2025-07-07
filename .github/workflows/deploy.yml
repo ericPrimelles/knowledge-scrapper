@@ -76,7 +76,8 @@ jobs:
                                         --filters Name=vpc-id,Values=$DEFAULT_VPC \
                                         --query 'Subnets[*].SubnetId' \
                                         --output text)
-
+                
+                export CFN_PUBLIC_SUBNETS=$(echo $PUBLIC_SUBNETS | tr '\t' ',')
                 ###################################################
 
                 ############### Deploy Stack #####################
@@ -84,4 +85,4 @@ jobs:
                   --stack-name dvst-knwledge-scrapper \
                   --template-file template.yml \
                   --capabilities CAPABILITY_NAMED_IAM \
-                  --parameter-overrides Stage=${{env.STAGE}} DefaultVpc=$DEFAULT_VPC PublicSubnets=$PUBLIC_SUBNETS  
+                  --parameter-overrides Stage=${{env.STAGE}} DefaultVpc=$DEFAULT_VPC PublicSubnets=$CFN_PUBLIC_SUBNETS  

@@ -78,6 +78,7 @@ jobs:
                                         --output text)
                 
                 export CFN_PUBLIC_SUBNETS=$(echo $PUBLIC_SUBNETS | tr '\t' ',')
+                echo $CFN_PUBLIC_SUBNETS
                 ###################################################
 
                 ############### Deploy Stack #####################

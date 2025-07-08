@@ -167,7 +167,7 @@ Resources:
             - !Ref ServiceSecurityGroup
           Subnets: !Ref PublicSubnets
       LoadBalancers:
-        - ContainerName: ngnix
+        - ContainerName: nginx
           ContainerPort: 80
           TargetGroupArn: !Ref ScrapperALBTargetGroup
 # Outputs:

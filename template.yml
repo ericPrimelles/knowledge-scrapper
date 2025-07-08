@@ -214,4 +214,4 @@ Outputs:
 
   ServiceName:
     Description: 'ECS service name'
-    Value: !Ref ScrapperECSService
+    Value: !GetAtt ScrapperECSService.Name

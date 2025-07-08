@@ -4,17 +4,21 @@ from robotexclusionrulesparser import RobotExclusionRulesParser
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 from openai_summary import summarize
-def is_allowed(url, user_agent='DvstScrapperBot'):
-    parsed =  urlparse(url)
-    robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
-    resp = requests.get(robots_url, timeout=5)
 
-    if resp.status_code !=200:
-        return True
-    
-    parser = RobotExclusionRulesParser()
-    parser.parse(resp.text)
-    return parser.is_allowed(user_agent, url)
+def is_allowed(url, user_agent='DvstScrapperBot'):
+    try:
+        parsed = urlparse(url)
+        robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+        resp = requests.get(robots_url, timeout=5)
+        if resp.status_code != 200:
+            return True
+        
+        parser = RobotExclusionRulesParser()
+        parser.parse(resp.text)
+        return parser.is_allowed(user_agent, url)
+    except Exception as e:
+        print(f"[robots.txt check failed] {url}: {e}")
+        return True  # Assume allowed if robots.txt is unreachable
 
 def clean_html_content(html: str) -> str:
     soup = BeautifulSoup(html, "lxml")
@@ -43,31 +47,45 @@ async def scrapper_routine(event, context):
         actionGroup = event.get('actionGroup', None)
         fnc = event.get('function', None)
         responses = []
+
         if not urls:
             return []
-        for url in urls:
-            if not is_allowed(url) or 'zillow.com' in url or 'realtor.com' in url:
-                continue
-            
-            async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=True)
-                context = await browser.new_context(
+
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
                 viewport={"width": 1280, "height": 800}
-                )
-                page = await context.new_page()
-                await page.goto(url)
-                content = await page.content()
-                await browser.close()
-                clean_content = clean_html_content(content)
-                responses.append(clean_content)
-        responses = ",".join(responses)
-        result =  {"data" : summarize(responses)}
+            )
+            page = await context.new_page()
+
+            for url in urls:
+                try:
+                    if not is_allowed(url) or 'zillow.com' in url or 'realtor.com' in url:
+                        continue
+
+                    await page.goto(url, timeout=15000)
+                    content = await page.content()
+                    clean_content = clean_html_content(content)
+                    responses.append(clean_content)
+
+                except Exception as e:
+                    print(f"[scraping failed] {url}: {e}")
+                    continue
+
+            await browser.close()
+
+        # Summarize if anything was collected
+        if responses:
+            combined = ", ".join(responses)
+            result = {"data": summarize(combined)}
+        else:
+            result = {"data": "No valid content could be retrieved."}
+
         return result
+
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Fatal Error: {e}")
         return {
-            "Error" : str(e)
+            "Error": str(e)
         }
-
-

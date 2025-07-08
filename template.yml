@@ -61,7 +61,7 @@ Resources:
       Cpu: !Ref ContainerCpu
       Memory: !Ref ContainerMemory
       NetworkMode: awsvpc
-      ExecutionRoleArn: a
+      ExecutionRoleArn: arn:aws:iam::889453232518:role/ecsTaskExecutionRole
       ContainerDefinitions:
         - Name: nginx
           Image: !Ref NginxImageUrl
@@ -77,6 +77,12 @@ Resources:
           DependsOn:
             - ContainerName: scrapper
               Condition: START
+          HealthCheck:
+            Command: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 10
         - Name: scrapper
           Image: !Ref ImageUrl
           PortMappings: 
@@ -88,6 +94,7 @@ Resources:
               awslogs-group: /ecs/scrapper
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: scrapper
+
 
   ## ALB Definition
   ALBSecurityGroup:

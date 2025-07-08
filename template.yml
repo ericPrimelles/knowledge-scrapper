@@ -165,6 +165,7 @@ Resources:
           AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ServiceSecurityGroup
+          Subnets: !Ref PublicSubnets
       LoadBalancers:
         - ContainerName: ngnix
           ContainerPort: 80

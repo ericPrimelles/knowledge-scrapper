@@ -72,10 +72,18 @@ jobs:
                                     --query 'Vpcs[0].VpcId' \
                                     --output text)
 
-                export PUBLIC_SUBNETS=$(aws ec2 describe-subnets \
-                                        --filters Name=vpc-id,Values=$DEFAULT_VPC \
-                                        --query 'join(`,`, Subnets[*].SubnetId)' \
-                                        --output text)
+                PUBLIC_SUBNETS=$(aws ec2 describe-subnets \
+                                --filters Name=vpc-id,Values=$DEFAULT_VPC \
+                                --query 'Subnets[*].{id:SubnetId,routeTable:RouteTableAssociationId}' \
+                                --output json | jq -r '
+                                    .[] | .id as $subnetId |
+                                    $subnetId + "," +
+                                    (
+                                    (aws ec2 describe-route-tables --filters Name=association.subnet-id,Values=\($subnetId) |
+                                    jq -r ".RouteTables[].Routes[] | select(.GatewayId | test(\"igw-\"))")
+                                    | if . then "public" else "private" end
+                                    )
+                                ' | grep ',public' | cut -d, -f1 | paste -sd,)
                 
                 
                 ###################################################

@@ -61,7 +61,7 @@ Resources:
       Cpu: !Ref ContainerCpu
       Memory: !Ref ContainerMemory
       NetworkMode: awsvpc
-      ExecutionRoleArn: !GetAtt ScrapperTaskExecutionRole
+      ExecutionRoleArn: !GetAtt ScrapperTaskExecutionRole.Arn
       ContainerDefinitions:
         - Name: nginx
           Image: !Ref NginxImageUrl

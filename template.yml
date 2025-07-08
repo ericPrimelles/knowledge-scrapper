@@ -207,3 +207,11 @@ Outputs:
   AlbDns:
      Description: 'DNS for Alb'
      Value: !GetAtt ScrapperALB.DNSName
+
+  ClusterName:
+    Description: 'Cluster name'
+    Value: !Ref ScrapperECSCluster
+
+  ServiceName:
+    Description: 'ECS service name'
+    Value: !Ref ScrapperECSService

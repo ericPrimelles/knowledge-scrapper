@@ -90,3 +90,22 @@ jobs:
                                         ImageUrl=$APP_ECR_URI \
                                         NginxImageUrl=$NGINX_ECR_URI \
                                         OpenAiApikey=${{secrets.OPENAI_APIKEY}}
+
+                export CLUSTER_NAME=$(aws cloudformation describe-stacks \
+                    --stack-name dvst-knwledge-scrapper \
+                    --query "Stacks[0].Outputs[?OutputKey=='ClusterName'].OutputValue" \
+                    --output text)
+                
+                export SERVICE_NAME=$(aws cloudformation describe-stacks \
+                    --stack-name dvst-knwledge-scrapper \
+                    --query "Stacks[0].Outputs[?OutputKey=='ServiceName'].OutputValue" \
+                    --output text)
+
+                aws ecs update-service \
+                  --cluster YOUR_CLUSTER_NAME \
+                  --service YOUR_SERVICE_NAME \
+                  --force-new-deployment
+
+                aws ecs wait services-stable \
+                  --cluster CLUSTER_NAME \
+                  --services SERVICE_NAME

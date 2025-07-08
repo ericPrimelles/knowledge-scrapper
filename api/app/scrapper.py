@@ -71,6 +71,3 @@ async def scrapper_routine(event, context):
         }
 
 
-import asyncio
-def handler(event, context):
-    return asyncio.run(lambda_routine(event, context))

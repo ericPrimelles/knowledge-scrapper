@@ -15,6 +15,7 @@ jobs:
             AWS_REGION: us-east-1
             STAGE: dev
             SERVERLESS_ACCESS_KEY: ${{secrets.SERVERLESS_ACCESS_KEY}}
+
         
         steps:
             - name: Checkout repo
@@ -85,4 +86,7 @@ jobs:
                   --stack-name dvst-knwledge-scrapper \
                   --template-file template.yml \
                   --capabilities CAPABILITY_NAMED_IAM \
-                  --parameter-overrides Stage=${{env.STAGE}} DefaultVpc=$DEFAULT_VPC PublicSubnets=$PUBLIC_SUBNETS ImageUrl=$APP_ECR_URI  NginxImageUrl=$NGINX_ECR_URI
+                  --parameter-overrides Stage=${{env.STAGE}} DefaultVpc=$DEFAULT_VPC PublicSubnets=$PUBLIC_SUBNETS \
+                                        ImageUrl=$APP_ECR_URI \
+                                        NginxImageUrl=$NGINX_ECR_URI \
+                                        OpenAiApikey=${{secrets.OPENAI_APIKEY}}

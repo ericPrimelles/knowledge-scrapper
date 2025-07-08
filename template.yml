@@ -36,6 +36,10 @@ Parameters:
   PublicSubnets:
     Type: List<AWS::EC2::Subnet::Id>
     Description: Default public subnets
+  
+  OpenAiApikey:
+    Type: String
+    Description: Apikey for openAi summarizer
 
 Resources:
 
@@ -113,7 +117,9 @@ Resources:
               awslogs-group: /ecs/scrapper
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: scrapper
-
+          Environment:
+            - Name: OPENAI_APIKEY
+              Value: !Ref OpenAiApikey
 
   ## ALB Definition
   ALBSecurityGroup:

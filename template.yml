@@ -202,5 +202,8 @@ Resources:
         - ContainerName: nginx
           ContainerPort: 80
           TargetGroupArn: !Ref ScrapperALBTargetGroup
-# Outputs:
-  
+
+Outputs:
+  AlbDns:
+     Description: 'DNS for Alb'
+     Value: !GetAtt ScrapperALB.DNSName

@@ -121,7 +121,7 @@ Resources:
     Properties:
       GroupDescription: Allow HTTP traffic to ALB
       VpcId: !Ref DefaultVpc
-      SecurityGroupIngess:
+      SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80

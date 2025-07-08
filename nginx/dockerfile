@@ -1,3 +1,7 @@
 FROM nginx:alpine
 
-COPY default.conf /etc/nginx/conf.d/default.conf
+# ✅ Create the directory required for PID file
+RUN mkdir -p /run/nginx
+
+# ✅ Copy full nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf

@@ -33,4 +33,4 @@ RUN python -m playwright install chromium
 
 # Use Python 3 binary from system
 # ENTRYPOINT [ "python3", "-m", "awslambdaric" ]
-CMD ["gunicorn", "main:app", "-k", "uvicorn.workers.UvicornWorker", "--workers", "4", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "main:app", "-k", "uvicorn.workers.UvicornWorker", "--workers", "4", "--bind", "0.0.0.0:3000"]

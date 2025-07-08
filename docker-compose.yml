@@ -4,6 +4,8 @@ services:
   fastapi:
     build: api/
     container_name: fastapi-app
+    env_file:
+      - .env
     ports:
       - "3000:3000"  # ✅ Add this line
     restart: always

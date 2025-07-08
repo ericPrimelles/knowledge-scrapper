@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from robotexclusionrulesparser import RobotExclusionRulesParser
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
-
+from openai_summary import summarize
 def is_allowed(url, user_agent='DvstScrapperBot'):
     parsed =  urlparse(url)
     robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
@@ -78,8 +78,10 @@ async def scrapper_routine(event, context):
                 content = await page.content()
                 await browser.close()
                 clean_content = clean_html_content(content)
-                responses.append({"data" : clean_content})
-        return generate_bedrock_response(actionGroup, fnc, responses)
+                responses.append(clean_content)
+        responses = ",".join(responses)
+        result =  {"data" : summarize(responses)}
+        return generate_bedrock_response(actionGroup, fnc, result)
     except Exception as e:
         print(f"Error: {e}")
         return {

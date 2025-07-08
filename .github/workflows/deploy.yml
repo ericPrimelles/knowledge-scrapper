@@ -102,8 +102,8 @@ jobs:
                     --output text)
 
                 aws ecs update-service \
-                  --cluster YOUR_CLUSTER_NAME \
-                  --service YOUR_SERVICE_NAME \
+                  --cluster CLUSTER_NAME \
+                  --service SERVICE_NAME \
                   --force-new-deployment
 
                 aws ecs wait services-stable \

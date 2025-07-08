@@ -16,24 +16,6 @@ def is_allowed(url, user_agent='DvstScrapperBot'):
     parser.parse(resp.text)
     return parser.is_allowed(user_agent, url)
 
-def generate_bedrock_response(actionGroup, fnc, results):
-    return {
-            "messageVersion": "1.0",
-            "response": {
-                "actionGroup" : actionGroup,
-                "function" : fnc,                
-                "functionResponse" : {
-                   
-                   "responseBody" : {
-                      "TEXT": {
-                         "body": json.dumps(results)
-                      }
-                   }
-                }
-            }
-        }
-
-
 def clean_html_content(html: str) -> str:
     soup = BeautifulSoup(html, "lxml")
 
@@ -62,7 +44,7 @@ async def scrapper_routine(event, context):
         fnc = event.get('function', None)
         responses = []
         if not urls:
-            return generate_bedrock_response(actionGroup, fnc, [])
+            return []
         for url in urls:
             if not is_allowed(url) or 'zillow.com' in url or 'realtor.com' in url:
                 continue
@@ -81,7 +63,7 @@ async def scrapper_routine(event, context):
                 responses.append(clean_content)
         responses = ",".join(responses)
         result =  {"data" : summarize(responses)}
-        return generate_bedrock_response(actionGroup, fnc, result)
+        return result
     except Exception as e:
         print(f"Error: {e}")
         return {

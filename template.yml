@@ -38,6 +38,25 @@ Parameters:
     Description: Default public subnets
 
 Resources:
+
+  NginxLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/nginx
+      RetentionInDays: 14  # Optional: Keep logs for 14 days
+      Tags:
+        - Key: Name
+          Value: nginx-log-group
+
+  ScrapperLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/scrapper
+      RetentionInDays: 14  # Optional: Keep logs for 14 days
+      Tags:
+        - Key: Name
+          Value: scrapper-log-group
+          
   ScrapperTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
